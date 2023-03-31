@@ -42,8 +42,23 @@ def cheapest_date(ori, dest):
     except ResponseError as error:
         raise error
 
+
+def airport_routes(origin):
+    try:
+        '''
+        What are the destinations served by BLR airport?
+        '''
+        response = amadeus.airport.direct_destinations.get(departureAirportCode=origin)
+        airports_list = response.data
+        airports_list = [airport['iataCode'] for airport in airports_list]
+        return airports_list
+    except ResponseError as error:
+        raise error
+
 # get_flight_offers('MAD', 'ATH', '2022-11-01', 1)
 
 # price_metrics_itinerary('CDG', 'BCN', '2023-11-13')
 
-cheapest_date('MAD', 'BCN')
+# cheapest_date('MAD', 'BCN')
+
+print(airport_routes('MAD'))
