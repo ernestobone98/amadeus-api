@@ -3,7 +3,7 @@ import networkx as nx
 import numpy as np
 import time
 import matplotlib.pyplot as plt
-import api.api_calls as api
+from ..api.api_calls import airport_routes
 
 
 G = nx.Graph()
@@ -39,13 +39,13 @@ def create_itinerary_graph(orig, dest):
     as the price of the flight
     '''
 
-    list_orig = api.airport_routes(orig)
-    list_dest = api.airport_routes(dest)
+    list_orig = airport_routes(orig)
+    list_dest = airport_routes(dest)
 
     nodes = sorted(np.unique(list_orig + list_dest))
 
     for i in nodes:
-        aux = api.airport_routes(i)
+        aux = airport_routes(i)
         # add aux elements to nodes only if it is not already in nodes
         nodes = sorted(np.unique(nodes + aux))
         # make a pause of 100ms
