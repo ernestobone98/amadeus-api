@@ -61,4 +61,4 @@ def airport_routes(origin):
 
 # cheapest_date('MAD', 'BCN')
 
-print(airport_routes('MAD'))
+# print(airport_routes('MAD'))
