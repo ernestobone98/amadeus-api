@@ -33,6 +33,8 @@ import api_calls as api
 # plt.show()
 
 # Function working but raises Amadeus error: Departure airport code is not supported
+# Nodes creation working
+# Weight to be trated
 def create_itinerary_graph(orig, dest):
     '''
     Creates a graph with the origin and destination as nodes and the weight of the edge
@@ -42,25 +44,24 @@ def create_itinerary_graph(orig, dest):
     list_orig = api.airport_routes(orig)
     list_dest = api.airport_routes(dest)
 
-    nodes = list(set(list_orig + list_dest))
+    iterate = list(set(list_orig + list_dest))
+    nodes = iterate
 
+    print("Generating nodes...")
+    for i in iterate:
+        try:
+            aux = api.airport_routes(i)
+            # add aux elements to nodes only if it is not already in nodes
+            nodes = list(set(nodes + aux))
+            # make a pause of 100ms
+            time.sleep(0.1)
+        except:
+            continue
+
+    print("Adding nodes to the graph...")
+    G = nx.Graph()
+    G.add_nodes_from(nodes)
     # print("nodes : ",nodes)
-
-    for i in nodes:
-        print("i : ",i)
-        print("typeof i : ", type(str(i)))
-        print("iata : ", type('ACE'))
-
-        aux = api.airport_routes(i)
-        # add aux elements to nodes only if it is not already in nodes
-        nodes = list(set(nodes + aux))
-        # make a pause of 100ms
-        time.sleep(0.1)
-
-    print(nodes)
-    # G = nx.Graph()
-    # G.add_nodes_from()
-
-    # return G
+    print(len(nodes))
 
 create_itinerary_graph('MAD', 'BCN')
