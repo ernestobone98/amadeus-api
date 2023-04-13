@@ -74,10 +74,7 @@ def get_cheapest_price(origin, dest):
         df = pd.concat([df.drop(['travelerPricings'], axis=1), df['travelerPricings'].apply(pd.Series)], axis=1)
         df = pd.concat([df.drop([0], axis=1), df[0].apply(pd.Series)], axis=1)
         # delete repeated or useless columns
-        df = df.drop(['lastTicketingDateTime'], axis=1)
-        df = df.drop(['pricingOptions'], axis=1)
-        df = df.drop(['fees'], axis=1)
-        df = df.drop(['price'], axis=1)
+        df = df.drop(['lastTicketingDateTime', 'pricingOptions', 'fees', 'price'], axis=1)
         # convert itineraries list-like elements to columns
         df = pd.concat([df.drop(['itineraries'], axis=1), df['itineraries'].apply(pd.Series)], axis=1)
         df = pd.concat([df.drop([0], axis=1), df[0].apply(pd.Series)], axis=1)
@@ -94,32 +91,22 @@ def get_cheapest_price(origin, dest):
 
         df = pd.concat([df.drop(['departure'], axis=1), df['departure'].apply(pd.Series)], axis=1)
 
-        df = df.drop(['operating'], axis=1)
-        df = df.drop(['duration'], axis=1)
-        df = df.drop(['id'], axis=1)
-        df = df.drop(['blacklistedInEU'], axis=1)
+        df = df.drop(['operating', 'blacklistedInEU', 'id', 'duration'], axis=1)
 
         df = pd.concat([df.drop(['aircraft'], axis=1), df['aircraft'].apply(pd.Series)], axis=1)
         df = pd.concat([df.drop(['includedCheckedBags'], axis=1), df['includedCheckedBags'].apply(pd.Series)], axis=1)
 
-        df = df.drop(['weight'], axis=1)
-        df = df.drop(['weightUnit'], axis=1)
+        df = df.drop(['weight', 'weightUnit'], axis=1)
 
         df = pd.concat([df.drop(['arrival'], axis=1), df['arrival'].apply(pd.Series)], axis=1)
-        df = df.drop(['terminal'], axis=1)
-        df = df.drop(['grandTotal'], axis=1)
-        df = df.drop(['travelerId'], axis=1)
-        df = df.drop(['segmentId'], axis=1)
+        df = df.drop(['terminal', 'grandTotal', 'travelerId', 'segmentId', 'validatingAirlineCodes'], axis=1)
 
         df.columns = ['instantTicketingRequired', 'nonHomogeneous', 'oneWay', 'lastTicketingDate', 'numberOfBookableSeats', 
-                      'validatingAirlineCodes', 'total', 'base', 'fareOption', 'travelerType', 'cabin', 'fareBasis', 'brandedFare',
+                      'total', 'base', 'fareOption', 'travelerType', 'cabin', 'fareBasis', 'brandedFare',
                         'class', 'carrierCode', 'number', 'numberOfStops', 'departureIataCode',
                       'departureAt', 'aircraftCode', 'bagageQuantity', 'arrivalIataCode', 'arrivalAt']
 
-        # convert df to csv
-        df.to_csv('cheapest_price_trainer_set.csv')
-        print(df)
-        print(df.columns.tolist()) 
+        return df
     except ResponseError as error:
         raise error
 
