@@ -64,6 +64,11 @@ def get_cheapest_price(origin, dest):
         response = amadeus.shopping.flight_offers_search.get(
             originLocationCode = origin, destinationLocationCode = dest, departureDate='2023-11-11', adults=1)
         df = pd.DataFrame(response.data)
+
+    except ResponseError as error:
+        raise error
+    
+    else:
         # from df convert all list-like elements to columns
         df = pd.concat([df.drop(['price'], axis=1), df['price'].apply(pd.Series)], axis=1)
         # drop type, id and source
@@ -106,15 +111,14 @@ def get_cheapest_price(origin, dest):
                         'class', 'carrierCode', 'number', 'numberOfStops', 'departureIataCode',
                       'departureAt', 'aircraftCode', 'bagageQuantity', 'arrivalIataCode', 'arrivalAt']
 
-        return df
-    except ResponseError as error:
-        raise error
+        return df.dropna()
+
+print(pd.concat([get_cheapest_price('CDG', 'MAD'), get_cheapest_price('MAD', 'CDG')], ignore_index=True))
 
 # get_flight_offers('MAD', 'ATH', '2022-11-01', 1)
 
 # price_metrics_itinerary('CDG', 'BCN', '2023-11-13')
 
 # cheapest_date('SYD', 'BKK')
-get_cheapest_price('CDG', 'MAD')
 
 # print(airport_routes('MAD'))
