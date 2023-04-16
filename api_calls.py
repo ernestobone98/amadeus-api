@@ -56,13 +56,13 @@ def airport_routes(origin):
     except ResponseError as error:
         raise error
 
-def get_cheapest_price(origin, dest):
+def get_cheapest_price(origin, dest, dep_date):
     try:
         '''
         Find the cheapest flights from SYD to BKK
         '''
         response = amadeus.shopping.flight_offers_search.get(
-            originLocationCode = origin, destinationLocationCode = dest, departureDate='2023-11-11', adults=1)
+            originLocationCode = origin, destinationLocationCode = dest, departureDate = dep_date, adults=1)
         df = pd.DataFrame(response.data)
 
     except ResponseError as error:
@@ -113,7 +113,7 @@ def get_cheapest_price(origin, dest):
 
         return df.dropna()
 
-print(pd.concat([get_cheapest_price('CDG', 'MAD'), get_cheapest_price('MAD', 'CDG')], ignore_index=True))
+# print(pd.concat([get_cheapest_price('CDG', 'MAD', '2023-11-11'), get_cheapest_price('MAD', 'CDG', '2023-11-11')], ignore_index=True))
 
 # get_flight_offers('MAD', 'ATH', '2022-11-01', 1)
 
