@@ -175,7 +175,7 @@ df =pd.concat([get_cheapest_price('CDG', 'MAD', '2023-11-11'), get_cheapest_pric
 df =pd.concat([df, get_cheapest_price('MAD', 'BCN', '2023-12-21')], ignore_index=True)
 df =pd.concat([df, get_cheapest_price('CDG', 'BCN', '2023-10-02')], ignore_index=True)
 # convert df to csv
-df.to_csv('fligth_offers.csv', index=False)
+df.to_csv('flight_offers.csv', index=False)
 
 # get_flight_offers('MAD', 'ATH', '2022-11-01', 1)
 
