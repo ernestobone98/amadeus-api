@@ -93,27 +93,80 @@ def get_cheapest_price(origin, dest, dep_date):
         df = pd.concat([df.drop(['segments'], axis=1), df['segments'].apply(pd.Series)], axis=1)
         df = pd.concat([df.drop([0], axis=1), df[0].apply(pd.Series)], axis=1)
         df = df.drop([1], axis=1)
-
+         
         df = pd.concat([df.drop(['departure'], axis=1), df['departure'].apply(pd.Series)], axis=1)
-
+         
         df = df.drop(['operating', 'blacklistedInEU', 'id', 'duration'], axis=1)
+        # change the column named 'at' to 'departureAt'
+        df = df.rename(columns={'at': 'departureAt'})
 
         df = pd.concat([df.drop(['aircraft'], axis=1), df['aircraft'].apply(pd.Series)], axis=1)
         df = pd.concat([df.drop(['includedCheckedBags'], axis=1), df['includedCheckedBags'].apply(pd.Series)], axis=1)
 
         df = df.drop(['weight', 'weightUnit'], axis=1)
-
+         
         df = pd.concat([df.drop(['arrival'], axis=1), df['arrival'].apply(pd.Series)], axis=1)
         df = df.drop(['terminal', 'grandTotal', 'travelerId', 'segmentId', 'validatingAirlineCodes'], axis=1)
+        df = df.rename(columns={'at': 'arrivalAt'})
+         
 
-        df.columns = ['instantTicketingRequired', 'nonHomogeneous', 'oneWay', 'lastTicketingDate', 'numberOfBookableSeats', 
+        # divinding lastTicketingDate into ltd_year, ltd_month and ltd_day
+        df['ltd_year'] = df['lastTicketingDate'].apply(lambda x: x[:4])
+        df['ltd_month'] = df['lastTicketingDate'].apply(lambda x: x[5:7])
+        df['ltd_day'] = df['lastTicketingDate'].apply(lambda x: x[8:10])
+        df = df.drop(['lastTicketingDate'], axis=1)
+        # add the new columns to the dataframe
+        df = pd.concat([df, df['ltd_year'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['ltd_month'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['ltd_day'].apply(pd.Series)], axis=1)
+
+        #print column names
+         
+
+        # do the same for departureAt and arrivalAt knowing that they are in the format '2023-11-11T07:00:00'
+        df['departure_year'] = df['departureAt'].apply(lambda x: x[:4])
+        df['departure_month'] = df['departureAt'].apply(lambda x: x[5:7])
+        df['departure_day'] = df['departureAt'].apply(lambda x: x[8:10])
+        df['departure_hour'] = df['departureAt'].apply(lambda x: x[11:13])
+        df['departure_minute'] = df['departureAt'].apply(lambda x: x[14:16])
+        df = df.drop(['departureAt'], axis=1)
+        # add the new columns to the dataframe
+        df = pd.concat([df, df['departure_year'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['departure_month'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['departure_day'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['departure_hour'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['departure_minute'].apply(pd.Series)], axis=1)
+
+        df['arrival_year'] = df['arrivalAt'].apply(lambda x: x[:4])
+        df['arrival_month'] = df['arrivalAt'].apply(lambda x: x[5:7])
+        df['arrival_day'] = df['arrivalAt'].apply(lambda x: x[8:10])
+        df['arrival_hour'] = df['arrivalAt'].apply(lambda x: x[11:13])
+        df['arrival_minute'] = df['arrivalAt'].apply(lambda x: x[14:16])
+        df = df.drop(['arrivalAt'], axis=1)
+        # add the new columns to the dataframe
+        df = pd.concat([df, df['arrival_year'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['arrival_month'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['arrival_day'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['arrival_hour'].apply(pd.Series)], axis=1)
+        df = pd.concat([df, df['arrival_minute'].apply(pd.Series)], axis=1)
+        
+        # drop all columns named '0'
+        df = df.drop([0], axis=1)
+
+        df.columns = ['instantTicketingRequired', 'nonHomogeneous', 'oneWay', 'numberOfBookableSeats', 
                       'total', 'base', 'fareOption', 'travelerType', 'cabin', 'fareBasis', 'brandedFare',
                         'class', 'carrierCode', 'number', 'numberOfStops', 'departureIataCode',
-                      'departureAt', 'aircraftCode', 'bagageQuantity', 'arrivalIataCode', 'arrivalAt']
+                      'aircraftCode', 'bagageQuantity', 'arrivalIataCode', 'ltd_year', 'ltd_month', 
+                      'ltd_day', 'departure_year', 'departure_month', 'departure_day', 'departure_hour',
+                      'departure_minute', 'arrival_year', 'arrival_month', 'arrival_day', 'arrival_hour', 'arrival_minute']
 
         return df.dropna()
 
-# print(pd.concat([get_cheapest_price('CDG', 'MAD', '2023-11-11'), get_cheapest_price('MAD', 'CDG', '2023-11-11')], ignore_index=True))
+df =pd.concat([get_cheapest_price('CDG', 'MAD', '2023-11-11'), get_cheapest_price('MAD', 'CDG', '2023-11-21')], ignore_index=True)
+df =pd.concat([df, get_cheapest_price('MAD', 'BCN', '2023-12-21')], ignore_index=True)
+df =pd.concat([df, get_cheapest_price('CDG', 'BCN', '2023-10-02')], ignore_index=True)
+# convert df to csv
+df.to_csv('fligth_offers.csv', index=False)
 
 # get_flight_offers('MAD', 'ATH', '2022-11-01', 1)
 
