@@ -1,6 +1,7 @@
 from amadeus import Client, ResponseError
 import tokens as to
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 amadeus = Client(
     client_id = to.client_id,
@@ -160,7 +161,15 @@ def get_cheapest_price(origin, dest, dep_date):
                       'ltd_day', 'departure_year', 'departure_month', 'departure_day', 'departure_hour',
                       'departure_minute', 'arrival_year', 'arrival_month', 'arrival_day', 'arrival_hour', 'arrival_minute']
 
-        return df.dropna()
+        df = df.dropna()
+
+        label_encoder = LabelEncoder()
+        # Encoding labels in all non-numeric columns
+        for col in df.columns:
+            if df[col].dtype == 'object' or df[col].dtype == bool:
+                df[col] = label_encoder.fit_transform(df[col])
+
+        return df
 
 df =pd.concat([get_cheapest_price('CDG', 'MAD', '2023-11-11'), get_cheapest_price('MAD', 'CDG', '2023-11-21')], ignore_index=True)
 df =pd.concat([df, get_cheapest_price('MAD', 'BCN', '2023-12-21')], ignore_index=True)
