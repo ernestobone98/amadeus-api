@@ -1,10 +1,8 @@
 from joblib import dump
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import classification_report
+from sklearn import ensemble
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 import pandas as pd
-from imblearn.over_sampling import RandomOverSampler
-from sklearn.neural_network import MLPClassifier
 
 
 def train_model():
@@ -19,15 +17,16 @@ def train_model():
     # We use 70% of the dataset for training and 30% for testing
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0) # Is not necessary to stratify the dataset
 
-    # We will use MLPClassifier to train the model
-    model = MLPClassifier(hidden_layer_sizes=(200,))
+    # We will use a regression model to predict the total price of the flight
+    model = ensemble.RandomForestRegressor(n_estimators=100, random_state=0)
     model.fit(X_train, y_train)
     y_predict = model.predict(X_test)
 
-    dump(model, "MLPC.joblib")
+    dump(model, "Regression.joblib")
 
-    print(accuracy_score(y_test, y_predict))
-    print(classification_report(y_test, y_predict))
+    mse = mean_squared_error(y_test, y_predict)
+    print("Mean Squared Error:", mse)
+    print(r2_score(y_test, y_predict))
 
 if __name__ == "__main__":
     train_model()
