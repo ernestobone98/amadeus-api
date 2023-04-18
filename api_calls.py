@@ -1,7 +1,9 @@
 from amadeus import Client, ResponseError
 import tokens as to
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+import encoder as enc
+
+label_encoder = enc.get_encoder()
 
 amadeus = Client(
     client_id = to.client_id,
@@ -163,7 +165,6 @@ def get_cheapest_price(origin, dest, dep_date):
 
         df = df.dropna()
 
-        label_encoder = LabelEncoder()
         # Encoding labels in all non-numeric columns
         for col in df.columns:
             if df[col].dtype == 'object' or df[col].dtype == bool:
