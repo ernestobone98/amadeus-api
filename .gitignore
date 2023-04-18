@@ -2,3 +2,5 @@
 /airports.csv
 /cheapest_price_trainer_set.csv
 /flight_offers.csv
+/Regression.joblib
+/encoder.pkl
