@@ -1,13 +1,16 @@
 import pickle
 from sklearn.preprocessing import LabelEncoder
 
-def create_new_encoder():
-    label_encoder = LabelEncoder()
-    with open('encoder.pkl', 'wb') as f:
-        pickle.dump(label_encoder, f)
-    return label_encoder
+class Encoder:
+    def __init__(self):
+        self.encoder = None
 
-def get_encoder():
-    with open('encoder.pkl', 'rb') as f:
-        label_encoder = pickle.load(f)
-    return label_encoder
+    def create_new_encoder(self):
+        self.encoder = LabelEncoder()
+        with open('encoder.pkl', 'wb') as f:
+            pickle.dump(self.encoder, f)
+
+    def get_encoder(self):
+        with open('encoder.pkl', 'rb') as f:
+            self.encoder = pickle.load(f)
+        return self.encoder
