@@ -1,2 +1,0 @@
-client_id='nzRfRZWzv8XjvR7byTGwTqf58Z50NOil'
-client_secret='lN9yTIWfxB0VQtbx'
