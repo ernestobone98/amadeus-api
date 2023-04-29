@@ -59,7 +59,7 @@ def airport_routes(origin):
     except ResponseError as error:
         raise error
 
-def get_cheapest_price(origin, dest, dep_date):
+def get_prices(origin, dest, dep_date, encode = True):
     try:
         '''
         Find the cheapest flights from SYD to BKK
@@ -166,17 +166,28 @@ def get_cheapest_price(origin, dest, dep_date):
         df = df.dropna()
 
         # Encoding labels in all non-numeric columns
-        for col in df.columns:
-            if df[col].dtype == 'object' or df[col].dtype == bool:
-                df[col] = label_encoder.fit_transform(df[col])
+        if encode == True:
+            for col in df.columns:
+                if df[col].dtype == 'object' or df[col].dtype == bool:
+                    df[col] = label_encoder.fit_transform(df[col])
 
         return df
 
-df =pd.concat([get_cheapest_price('CDG', 'MAD', '2023-11-11'), get_cheapest_price('MAD', 'CDG', '2023-11-21')], ignore_index=True)
-df =pd.concat([df, get_cheapest_price('MAD', 'BCN', '2023-12-21')], ignore_index=True)
-df =pd.concat([df, get_cheapest_price('CDG', 'BCN', '2023-10-02')], ignore_index=True)
-# convert df to csv
-df.to_csv('flight_offers.csv', index=False)
+def get_cheapest_price(origin, dest, depart):
+    '''
+    This function returns the cheapest price for a given origin, destination and departure date.
+    '''
+    # get the flight offers
+    df = get_prices(origin, dest, depart, encode=False)
+    # get the cheapest price
+    cheapest_price = df['total'].min()
+    return cheapest_price
+
+# df =pd.concat([get_prices('CDG', 'MAD', '2023-11-11'), get_prices('MAD', 'CDG', '2023-11-21')], ignore_index=True)
+# df =pd.concat([df, get_prices('MAD', 'BCN', '2023-12-21')], ignore_index=True)
+# df =pd.concat([df, get_prices('CDG', 'BCN', '2023-10-02')], ignore_index=True)
+# # convert df to csv
+# df.to_csv('flight_offers.csv', index=False)
 
 # get_flight_offers('MAD', 'ATH', '2022-11-01', 1)
 
