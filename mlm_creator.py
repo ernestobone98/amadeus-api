@@ -25,8 +25,8 @@ def train_model():
     dump(model, "Regression.joblib")
 
     mse = mean_squared_error(y_test, y_predict)
-    print("Mean Squared Error:", mse)
-    print(r2_score(y_test, y_predict))
+    print("Mean Squared Error: ", mse)
+    print("R2: ", r2_score(y_test, y_predict))
 
 if __name__ == "__main__":
     train_model()

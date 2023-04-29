@@ -61,7 +61,5 @@ def create_itinerary_graph(orig, dest):
     print("Adding nodes to the graph...")
     G = nx.Graph()
     G.add_nodes_from(nodes)
-    # print("nodes : ",nodes)
-    print(len(nodes))
 
 create_itinerary_graph('MAD', 'BCN')
