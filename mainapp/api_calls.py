@@ -1,5 +1,5 @@
 from amadeus import Client, ResponseError
-import tokens as to
+import token as to
 import pandas as pd
 from encoder import Encoder
 
@@ -100,6 +100,7 @@ class FlightSearch:
             # change the column named 'at' to 'departureAt'
             df = df.rename(columns={'at': 'departureAt'})
 
+            print(df['aircraft'])
             df = pd.concat([df.drop(['aircraft'], axis=1), df['aircraft'].apply(pd.Series)], axis=1)
             df = pd.concat([df.drop(['includedCheckedBags'], axis=1), df['includedCheckedBags'].apply(pd.Series)], axis=1)
 
@@ -180,8 +181,16 @@ class FlightSearch:
         cheapest_price = df['total'].min()
         return cheapest_price
 
-
-
+def main():
+    # create an instance of the class
+    flight_search = FlightSearch()
+    # get the cheapest price for a flight
+    cheapest_price = flight_search.get_cheapest_price('CDG', 'BCN', '2023-11-13')
+    # print the result
+    print(f'The cheapest price for a flight from CDG to BCN on 2023-11-13 is {cheapest_price} euros.')
+# create un main
+if __name__ == '__main__':
+    main()
 # df =pd.concat([get_prices('CDG', 'MAD', '2023-11-11'), get_prices('MAD', 'CDG', '2023-11-21')], ignore_index=True)
 # df =pd.concat([df, get_prices('MAD', 'BCN', '2023-12-21')], ignore_index=True)
 # df =pd.concat([df, get_prices('CDG', 'BCN', '2023-10-02')], ignore_index=True)
