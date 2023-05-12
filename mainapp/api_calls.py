@@ -1,5 +1,7 @@
 from amadeus import Client, ResponseError
-import token as to
+# import tokens as to
+from ..tokens import tokens as to
+# from ..tokens import client_id, client_secret
 import pandas as pd
 from encoder import Encoder
 
