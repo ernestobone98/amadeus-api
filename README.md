@@ -15,6 +15,9 @@ create a file called tokens.py in / and add your amadeus credentials:
     ```client_id='my_client_id'
     client_secret='my_client_secret_pass'```
 
+run the next command (from /) to start the server:
+    ```python3 manage.py runserver```
+
 ## Make a test
 
 You can make a test to verify if it works as it should!
