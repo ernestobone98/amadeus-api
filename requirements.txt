@@ -1,0 +1,9 @@
+# list of used librairies
+pandas
+numpy
+matplotlib
+scikit-learn
+joblib
+amadeus
+networkx
+django
