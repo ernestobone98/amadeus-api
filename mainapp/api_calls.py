@@ -23,30 +23,37 @@ class FlightSearch:
                 destinationLocationCode = destination,
                 departureDate = departure_date,
                 adults = ad)
-            print(response.data)
-            print(type(response.data))
+            result = {}; origin = []; destination = []; departure_date = []; departure_time = []; arrival_date = []; arrival_time = []
+            aircraftCode = []; carrierCode = []; number = []; duration = []
+
+            for i in range(len(response.data)):
+                origin.append(response.data[i]['itineraries'][0]['segments'][0]['departure']['iataCode'])
+                destination.append(response.data[i]['itineraries'][0]['segments'][0]['arrival']['iataCode'])
+                departure_date.append(response.data[i]['itineraries'][0]['segments'][0]['departure']['at'][0:10])
+                departure_time.append(response.data[i]['itineraries'][0]['segments'][0]['departure']['at'][11:16])
+                arrival_date.append(response.data[i]['itineraries'][0]['segments'][0]['arrival']['at'][0:10])
+                arrival_time.append(response.data[i]['itineraries'][0]['segments'][0]['arrival']['at'][11:16])
+                aircraftCode.append(response.data[i]['itineraries'][0]['segments'][0]['aircraft']['code'])
+                carrierCode.append(response.data[i]['itineraries'][0]['segments'][0]['carrierCode'])
+                number.append(response.data[i]['itineraries'][0]['segments'][0]['number'])
+                duration.append(response.data[i]['itineraries'][0]['duration'][2:])
+
+            for i in range(len(response.data)):
+                result[i] = {'origin': origin[i], 'destination': destination[i], 'departure_date': departure_date[i], 
+                             'departure_time': departure_time[i], 'arrival_date': arrival_date[i], 'arrival_time': arrival_time[i], 
+                             'aircraftCode': aircraftCode[i], 'carrierCode': carrierCode[i], 'number': number[i], 'duration': duration[i]}
+            print(result)
         except ResponseError as error:
             print(error)
 
-    def price_metrics_itinerary(self, origin, destination, departure):
-        try:
-            '''
-            Returns price metrics of a given itinerary
-            '''
-            response = self.amadeus.analytics.itinerary_price_metrics.get(originIataCode = origin,
-                                                                    destinationIataCode = destination,
-                                                                    departureDate = departure)
-            print(response.data)
-        except ResponseError as error:
-            raise 
-
+    # NOTE: request not working
     def cheapest_date(self, ori, dest):
         try:
             '''
             Find cheapest dates from Madrid to Munich
             '''
-            response = self.amadeus.shopping.flight_dates.get(origin = ori, destination = dest, departureDate = '2023-11-11')
-            print("cheapest date : ", pd.DataFrame(response.data))
+            response = self.amadeus.shopping.flight_dates.get(origin=ori, destination=dest)
+            print(response.data)
         except ResponseError as error:
             raise error
 
@@ -187,46 +194,70 @@ class FlightSearch:
         return cheapest_price
     
 
-    # TODO: complete this function who will be called by views to create a web request
     def wget_prices(self, origin, dest, depart):
         try:
             '''
-            Find the cheapest flights from SYD to BKK
+            Returns a orderd list of flight offers from the origin to the destination on the departure date.
             '''
             response = self.amadeus.shopping.flight_offers_search.get(
                 originLocationCode = origin, destinationLocationCode = dest, departureDate = depart, adults=1)
-            df = pd.DataFrame(response.data)
+            response = response.data
+            result = {}; price = {}; cureency = {}; carrierCode = {}
+            for i in range(len(response)):
+                price[i] = response[i]['price']['total']
+                cureency[i] = response[i]['price']['currency']
+                carrierCode[i] = response[i]['validatingAirlineCodes'][0]
+            # the dict result is composed of a key called 'flight n' and a value which is a dict with the keys 'price', 'currency' and 'carrierCode'
+            for i in range(len(response)):
+                result[f'flight {i}'] = {'price': price[i], 'currency': cureency[i], 'carrierCode': carrierCode[i]}
+            
+            return result
+        except ResponseError as error:
+            raise error
+        
+    def wget_recommendations(self, like, ori):
+        try:
+            '''
+            Recommends travel destinations similar to Paris for travelers in France
+            '''
+            response = self.amadeus.reference_data.recommended_locations.get(cityCodes=like , travelerCountryCode=ori)
+            result = {}; name = {}; relevance = {}
+            for i in range(len(response.data)):
+                name[i] = response.data[i]['name']
+                relevance[i] = response.data[i]['relevance']
+            for i in range(len(response.data)):
+                result[f'recommendation{i}'] = {'name': name[i], 'relevance': relevance[i]}
+            print(result)
+        except ResponseError as error:
+            raise error
+        
+    def wget_delay_prediction(self, origin, dest, depart_date, depart_time, arrival_date, arrival_time, aircraftCode, carrierCode, 
+                              flight_number, drt):
+        try:
+            response = self.amadeus.travel.predictions.flight_delay.get(originLocationCode=origin, destinationLocationCode=dest,
+                                                           departureDate=depart_date, departureTime=depart_time,
+                                                           arrivalDate=arrival_date, arrivalTime=arrival_time,
+                                                           aircraftCode=aircraftCode, carrierCode=carrierCode,
+                                                           flightNumber=flight_number, duration=drt)
+            result = {}; probability = {}; delay = {}; sub_type = {}
+            for i in range(len(response.data)):
+                probability[i] = response.data[i]['probability']
+                delay[i] = response.data[i]['result']
+                sub_type[i] = response.data[i]['subType']
+            for i in range(len(response.data)):
+                result[f'prediction{i}'] = {'probability': probability[i], 'delay': delay[i], 'sub_type': sub_type[i]}
+            return result
         except ResponseError as error:
             raise error
         
 
-        # extract the departure, arrival, departureAt, total, currency and lastTicketingDate columns to df
-        df = df[['lastTicketingDate', 'itineraries', 'price']]
-        return df    
+# def main():
+#     # create an instance of the class
+#     flight_search = FlightSearch()
+#     # flight_search.wget_prices('CDG', 'BCN', '2023-11-13')
+#     # flight_search.wget_recommendations('PAR', 'FR')
+#     # flight_search.get_flight_offers('CDG', 'BCN', '2023-11-13', 1)
+#     flight_search.wget_delay_prediction('CDG', 'BCN', '2023-11-13', '18:20:00', '2023-11-13', '20:45:00', '321', 'VY', '1001', 'PT2H25M')
 
-def main():
-    # create an instance of the class
-    flight_search = FlightSearch()
-    # get the flight offers
-    df = flight_search.wget_prices('CDG', 'BCN', '2023-11-13')
-    print(df['itineraries'])
-    # get the cheapest price for a flight
-    # cheapest_price = flight_search.get_cheapest_price('CDG', 'BCN', '2023-11-13')
-    # print the result
-    # print(f'The cheapest price for a flight from CDG to BCN on 2023-11-13 is {cheapest_price} euros.')
-# create un main
-if __name__ == '__main__':
-    main()
-# df =pd.concat([get_prices('CDG', 'MAD', '2023-11-11'), get_prices('MAD', 'CDG', '2023-11-21')], ignore_index=True)
-# df =pd.concat([df, get_prices('MAD', 'BCN', '2023-12-21')], ignore_index=True)
-# df =pd.concat([df, get_prices('CDG', 'BCN', '2023-10-02')], ignore_index=True)
-# # convert df to csv
-# df.to_csv('flight_offers.csv', index=False)
-
-# get_flight_offers('MAD', 'ATH', '2022-11-01', 1)
-
-# price_metrics_itinerary('CDG', 'BCN', '2023-11-13')
-
-# cheapest_date('SYD', 'BKK')
-
-# print(airport_routes('MAD'))
+# if __name__ == '__main__':
+#     main()
