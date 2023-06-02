@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 import json
-import api_calls
+from . import api_calls
 
 def say_hello(request):
     # create a blank json object
@@ -23,4 +23,7 @@ def routes(request, origin=None):
 def prices(request, origin=None, destination=None, date=None):
     # create an object from the api_calls class
     api = api_calls.FlightSearch()
-    api.get_prices(origin, destination, date)
+    json_data =json.dumps(api.get_prices(origin, destination, date))
+    response = HttpResponse(json_data, content_type='application/json')
+    response.status_code = 200
+    return response
