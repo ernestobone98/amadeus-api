@@ -4,6 +4,8 @@ from . import tokens as to
 import pandas as pd
 from .encoder import Encoder
 # from encoder import Encoder
+import http.client
+import json
 
 class FlightSearch:
     def __init__(self):
@@ -202,19 +204,44 @@ class FlightSearch:
             response = self.amadeus.shopping.flight_offers_search.get(
                 originLocationCode = origin, destinationLocationCode = dest, departureDate = depart, adults=1)
             response = response.data
-            result = {}; price = {}; cureency = {}; carrierCode = {}
+            result = {}; price = {}; cureency = {}; carrierCode = {}; duration = {}; date = {}
             for i in range(len(response)):
                 price[i] = response[i]['price']['total']
                 cureency[i] = response[i]['price']['currency']
                 carrierCode[i] = response[i]['validatingAirlineCodes'][0]
+                duration[i] = response[i]['itineraries'][0]['duration']
+                date[i] = response[i]['itineraries'][0]['segments'][0]['departure']['at']
             # the dict result is composed of a key called 'flight n' and a value which is a dict with the keys 'price', 'currency' and 'carrierCode'
             for i in range(len(response)):
-                result[f'flight {i}'] = {'price': price[i], 'currency': cureency[i], 'carrierCode': carrierCode[i]}
+                result[f'flight {i}'] = {'price': price[i], 'currency': cureency[i],
+                                         'carrierCode': carrierCode[i], 'duration': duration[i], 'date': date[i]}
             
             return result
         except ResponseError as error:
             raise error
         
+
+    def wget_prices2(self, origin, dest, depart, ret, adu):
+        try:
+            # Access token
+            conn = http.client.HTTPSConnection("test.api.amadeus.com")
+            payload = "client_id=nzRfRZWzv8XjvR7byTGwTqf58Z50NOil&client_secret=lN9yTIWfxB0VQtbx&grant_type=client_credentials"
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            conn.request("POST", "/v1/security/oauth2/token", body=payload, headers=headers)
+            response = conn.getresponse()
+            data = response.read().decode("utf-8")
+            access_token = json.loads(data)['access_token']
+
+            # Realizar solicitud GET para obtener precios de vuelos
+            headers = {'Authorization': f'Bearer {access_token}'}
+            conn.request("GET", f"/v2/shopping/flight-offers?originLocationCode={origin}&destinationLocationCode={dest}&departureDate={depart}&returnDate={ret}&adults={adu}&max=5", headers=headers)
+            response = conn.getresponse()
+            data = response.read().decode("utf-8")
+            print(data)
+
+        except Exception as e:
+            print(f"Error en la solicitud: {str(e)}")
+
     def wget_recommendations(self, like, ori):
         try:
             '''
@@ -227,7 +254,7 @@ class FlightSearch:
                 relevance[i] = response.data[i]['relevance']
             for i in range(len(response.data)):
                 result[f'recommendation{i}'] = {'name': name[i], 'relevance': relevance[i]}
-            print(result)
+            return result
         except ResponseError as error:
             raise error
         
@@ -254,10 +281,11 @@ class FlightSearch:
 # def main():
 #     # create an instance of the class
 #     flight_search = FlightSearch()
-#     # flight_search.wget_prices('CDG', 'BCN', '2023-11-13')
+#     print(flight_search.wget_prices('CDG', 'BCN', '2023-11-11'))
+#     # flight_search.wget_prices2('CDG', 'BCN', '2023-11-11', '2023-11-13', 1)
 #     # flight_search.wget_recommendations('PAR', 'FR')
 #     # flight_search.get_flight_offers('CDG', 'BCN', '2023-11-13', 1)
-#     flight_search.wget_delay_prediction('CDG', 'BCN', '2023-11-13', '18:20:00', '2023-11-13', '20:45:00', '321', 'VY', '1001', 'PT2H25M')
+#     # flight_search.wget_delay_prediction('CDG', 'BCN', '2023-11-13', '18:20:00', '2023-11-13', '20:45:00', '321', 'VY', '1001', 'PT2H25M')
 
 # if __name__ == '__main__':
 #     main()

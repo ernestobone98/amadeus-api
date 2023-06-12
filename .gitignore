@@ -1,4 +1,5 @@
 /mainapp/tokens.py
+/mainapp/airports.json
 /airports.csv
 /cheapest_price_trainer_set.csv
 /flight_offers.csv
