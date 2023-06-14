@@ -1,6 +1,8 @@
-/tokens.py
+/mainapp/tokens.py
+/mainapp/airports.json
 /airports.csv
 /cheapest_price_trainer_set.csv
 /flight_offers.csv
 /Regression.joblib
-/encoder.pkl
+/mainapp/encoder.pkl
+/env
