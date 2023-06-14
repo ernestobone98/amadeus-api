@@ -211,7 +211,8 @@ class FlightSearch:
                 carrierCode[i] = response[i]['validatingAirlineCodes'][0]
                 duration[i] = response[i]['itineraries'][0]['duration']
                 date[i] = response[i]['itineraries'][0]['segments'][0]['departure']['at']
-            # the dict result is composed of a key called 'flight n' and a value which is a dict with the keys 'price', 'currency' and 'carrierCode'
+            # the dict result is composed of a key called 'flight n' and a value which is a dict with the keys 'price',
+            #   'currency' and 'carrierCode'
             for i in range(len(response)):
                 result[f'flight {i}'] = {'price': price[i], 'currency': cureency[i],
                                          'carrierCode': carrierCode[i], 'duration': duration[i], 'date': date[i]}

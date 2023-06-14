@@ -53,23 +53,21 @@ def predictions(request, origin=None, destination=None, depart_date=None, depart
     return response
 
 
-def airports(request, lat=None, lon=None, country='France', dest=None, date=None, ratio=None):
+def airports(request, lat=None, lon=None, dest=None, date=None, ratio=None):
     coord1 = (float(lat), float(lon))
     # open the json file airports.json
     with open('/home/ernestobone/Documents/M1/TERD2/amadeus-api/mainapp/airports.json', 'r') as f:
         data = json.load(f)
     
-    # if country from a item in the json file is equal to the country from the request
-    # then calculate the distance between the two coordinates
     # if the distance is less than the ratio, then add the airport to the list
     airports = []
     for item in data:
-        if item['country'] == country:
-            coord2 = (float(item['geo_point_2d']['lat']), float(item['geo_point_2d']['lon']))
-            distance = geopy.distance.distance(coord1, coord2).km
-            if distance < float(ratio):
-                item['distance'] = distance
-                airports.append(item)
+        # if item['country'] == country:
+        coord2 = (float(item['geo_point_2d']['lat']), float(item['geo_point_2d']['lon']))
+        distance = geopy.distance.distance(coord1, coord2).km
+        if distance < float(ratio):
+            item['distance'] = distance
+            airports.append(item)
 
     # now from airports, sort the list by distance and then convert the list to json
     airports = sorted(airports, key=lambda k: k['distance'])
